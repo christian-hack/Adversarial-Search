@@ -210,8 +210,48 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        maxDepth = self.depth * gameState.getNumAgents()
+        return self.expectimax(gameState, "expect", maxDepth, 0)[0]
+ 
+    #Expectimax value
+    def expectimax(self, gameState, action, depth, agentIndex):
+        if depth is 0 or gameState.isLose() or gameState.isWin():
+            return (action, self.evaluationFunction(gameState))
+        if agentIndex is 0:
+            return self.maxvalue(gameState, action, depth, agentIndex)
+        else: 
+            return self.expvalue(gameState, action, depth, agentIndex)
 
+    #Max value        
+    def maxvalue(self, gameState, action, depth, agentIndex):
+
+        bestAction = ('max', -(float('inf')))
+        for legalAction in gameState.getLegalActions(agentIndex):
+            nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+            succAction = action
+            if depth != self.depth * gameState.getNumAgents():
+                succAction = action
+            else:
+                succAction = legalAction
+                succValue = self.expectimax(gameState.generateSuccessor(agentIndex, legalAction),
+                succAction, depth -1, nextAgent)
+                bestAction = max(bestAction, succValue, key = lambda x:x[1])
+                return bestAction
+
+    #Exp value
+    def expvalue(self, gameState, action, depth, agentIndex):
+        legalActions = gameState.getLegalActions(agentIndex)
+        averageScore = 0
+        probability = 1.0/len(legalActions)
+        for legalAction in legalActions:
+            nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+            bestAction = self.expectimax(gameState.generateSuccessor(agentIndex, legalAction),
+            action, depth -1, nextAgent)
+            averageScore += bestAction[1] * probability
+
+        return (action, averageScore)
+
+        
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
