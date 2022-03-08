@@ -75,7 +75,17 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        return successorGameState.getScore()
+        # unless ghosts are near, Pac-Man should focus solely on eating food
+        food_Dist = float("inf")
+        newFood = successorGameState.getFood().asList()
+        for food in newFood:
+            food_Dist = min(food_Dist, manhattanDistance(newPos, food))
+        ghostPositions = successorGameState.getGhostPositions()
+        # loop through list of ghost positions to determine manhattan distance from Pac-Man current position to ghost
+        for ghost in ghostPositions:
+            if(manhattanDistance(newPos, ghost) < 2):
+                return -float('inf')
+        return successorGameState.getScore() + 1.0/food_Dist
 
 def scoreEvaluationFunction(currentGameState):
     """
