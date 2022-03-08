@@ -165,7 +165,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # ensure depth isn't reached and that current state is not winning/losing state
         if depth is self.depth * gameState.getNumAgents() or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
-        if index is 0:
+        if index == 0:
             return self.maxValue(alpha, beta, depth, index, gameState)[1]
         else:
             return self.minValue(alpha, beta, depth, index, gameState)[1]
@@ -220,7 +220,35 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood().asList()
+
+    foodDistMin = float("inf")
+    for foodPos in newFood:
+        foodDistMin = min(foodDistMin, manhattanDistance(newPos, foodPos))
+
+    ghostDist = 0
+    ghostPos = currentGameState.getGhostPositions()
+    for ghost in ghostPos:
+        ghostDist = manhattanDistance(newPos, ghost)
+        if(ghostDist < 2):
+            return -float("int")
+
+    remFood = currentGameState.getNumFood()
+    remCaps = len(currentGameState.getCapsules())
+
+    foodDistConst = 950
+    capsConst = 10000
+    foodRemConst = 950050
+    adjustFactor = 0
+
+    if currentGameState.isLose():
+        adjustFactor -= 50000
+    elif currentGameState.isWin():
+        adjustFactor += 50000
+    return 1.0/(remFood + 1) * foodRemConst + ghostDist + 1.0/(foodDistMin + 1) * foodDistConst + 1.0/(remCaps + 1) * capsConst + adjustFactor
+
 
 # Abbreviation
 better = betterEvaluationFunction
