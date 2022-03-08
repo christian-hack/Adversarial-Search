@@ -221,28 +221,32 @@ def betterEvaluationFunction(currentGameState):
     """
     "*** YOUR CODE HERE ***"
     #util.raiseNotDefined()
+    # store vars for later use
     newPos = currentGameState.getPacmanPosition()
     newFood = currentGameState.getFood().asList()
 
+    # assign basis for calculating clost food position
     foodDistMin = float("inf")
+    # traverse newFood list to find closest food position
     for foodPos in newFood:
         foodDistMin = min(foodDistMin, manhattanDistance(newPos, foodPos))
 
     ghostDist = 0
+    # assign var list of all ghost positions in order to set conditions upon which to act in relation to ghost positioning
     ghostPos = currentGameState.getGhostPositions()
     for ghost in ghostPos:
         ghostDist = manhattanDistance(newPos, ghost)
         if(ghostDist < 2):
             return -float("int")
-
+    # store vars for assigning score per each factor
     remFood = currentGameState.getNumFood()
     remCaps = len(currentGameState.getCapsules())
-
     foodDistConst = 950
     capsConst = 10000
     foodRemConst = 950050
     adjustFactor = 0
 
+    # account for end-game bonuses/losses
     if currentGameState.isLose():
         adjustFactor -= 50000
     elif currentGameState.isWin():
