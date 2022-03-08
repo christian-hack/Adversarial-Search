@@ -165,7 +165,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         # ensure depth isn't reached and that current state is not winning/losing state
         if depth is self.depth * gameState.getNumAgents() or gameState.isWin() or gameState.isLose():
             return self.evaluationFunction(gameState)
-        if index is 0:
+        if index == 0:
             return self.maxValue(alpha, beta, depth, index, gameState)[1]
         else:
             return self.minValue(alpha, beta, depth, index, gameState)[1]
@@ -220,7 +220,39 @@ def betterEvaluationFunction(currentGameState):
     DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    #util.raiseNotDefined()
+    # store vars for later use
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood().asList()
+
+    # assign basis for calculating clost food position
+    foodDistMin = float("inf")
+    # traverse newFood list to find closest food position
+    for foodPos in newFood:
+        foodDistMin = min(foodDistMin, manhattanDistance(newPos, foodPos))
+
+    ghostDist = 0
+    # assign var list of all ghost positions in order to set conditions upon which to act in relation to ghost positioning
+    ghostPos = currentGameState.getGhostPositions()
+    for ghost in ghostPos:
+        ghostDist = manhattanDistance(newPos, ghost)
+        if(ghostDist < 2):
+            return -float("int")
+    # store vars for assigning score per each factor
+    remFood = currentGameState.getNumFood()
+    remCaps = len(currentGameState.getCapsules())
+    foodDistConst = 950
+    capsConst = 10000
+    foodRemConst = 950050
+    adjustFactor = 0
+
+    # account for end-game bonuses/losses
+    if currentGameState.isLose():
+        adjustFactor -= 50000
+    elif currentGameState.isWin():
+        adjustFactor += 50000
+    return 1.0/(remFood + 1) * foodRemConst + ghostDist + 1.0/(foodDistMin + 1) * foodDistConst + 1.0/(remCaps + 1) * capsConst + adjustFactor
+
 
 # Abbreviation
 better = betterEvaluationFunction
