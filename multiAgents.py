@@ -84,7 +84,7 @@ class ReflexAgent(Agent):
         # loop through list of ghost positions to determine manhattan distance from Pac-Man current position to ghost
         for ghost in ghostPositions:
             if(manhattanDistance(newPos, ghost) < 2):
-                return -float('inf')
+                return -float("inf")
         return successorGameState.getScore() + 1.0/food_Dist
 
 def scoreEvaluationFunction(currentGameState):
@@ -158,7 +158,44 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
         Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        return self.maxValue(-float("inf"), float("inf"), 0, 0, gameState)[0]
+
+    def alphaBeta(self, alpha, beta, depth, index, gameState):
+        # ensure depth isn't reached and that current state is not winning/losing state
+        if depth is self.depth * gameState.getNumAgents() or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        if index is 0:
+            return self.maxValue(alpha, beta, depth, index, gameState)[1]
+        else:
+            return self.minValue(alpha, beta, depth, index, gameState)[1]
+
+    def minValue(self, alpha, beta, depth, index, gameState):
+        # set basis for optimal (minimum) action
+        optAction = ("min", float("inf"))
+        # loop through all actions
+        for action in gameState.getLegalActions(index):
+            succAction = (action, self.alphaBeta(alpha, beta, depth+1, (depth+1) % gameState.getNumAgents(), gameState.generateSuccessor(index, action)))
+            # find MIN
+            optAction = min(optAction, succAction, key = lambda x:x[1])
+            if optAction[1] < alpha:
+                return optAction
+            else:
+                beta = min(beta, optAction[1])
+        return optAction
+    def maxValue(self, alpha, beta, depth, index, gameState):
+        # set basis for optimal (maximum) action
+        optAction = ("max", -float("inf"))
+        # loop through all actions
+        for action in gameState.getLegalActions(index):
+            succAction = (action, self.alphaBeta(alpha, beta, depth+1, (depth+1) % gameState.getNumAgents(), gameState.generateSuccessor(index, action)))
+            # find MAX
+            optAction = max(optAction, succAction, key = lambda x:x[1])
+            if optAction[1] > beta:
+                return optAction
+            else:
+                alpha = max(alpha, optAction[1])
+        return optAction
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
