@@ -146,7 +146,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        return self.maxValue(gameState, 0, 0)[0]
+
+    #Minimax
+    def miniMax(self, gameState, agentIndex, depth):
+        #Checks to see if the depth has been reached, also if the current state is winning/losing
+        if depth is self.depth * gameState.getNumAgents() or gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        if agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth)[1]
+        else:
+            return self.minValue(gameState, agentIndex, depth)[1]
+
+    #Maximum
+    def maxValue(self, gameState, agentIndex, depth):
+        #Sets basis for optimal (maximum) action
+        optAction = ("max", -float("inf"))
+        #Runs through all actions
+        for action in gameState.getLegalActions(agentIndex):
+            #Finds the successor action
+            succAction = (action, self.miniMax(gameState.generateSuccessor(agentIndex, action), (depth + 1) % gameState.getNumAgents(), 
+            depth + 1))
+            #Finds maximum
+            optAction = max(optAction, succAction, key = lambda x:x[1])
+        return optAction
+
+    #Minimum
+    def minValue(self, gameState, agentIndex, depth):
+        #Sets basis for optimal (minimum) action
+        optAction = ("min", float("inf"))
+        #Loops through all actions
+        for action in gameState.getLegalActions(agentIndex):
+            #Finds the successor action
+            succAction = (action, self.miniMax(gameState.generateSuccessor(agentIndex, action), (depth + 1) % gameState.getNumAgents(), 
+            depth + 1))
+            #Finds minimum
+            optAction = min(optAction, succAction, key = lambda x:x[1])
+        return optAction
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -210,48 +247,56 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
+        #util.raiseNotDefined()
         maxDepth = self.depth * gameState.getNumAgents()
-        return self.expectimax(gameState, "expect", maxDepth, 0)[0]
+        return self.expectiMax(gameState, "expect", maxDepth, 0)[0]
  
-    #Expectimax value
-    def expectimax(self, gameState, action, depth, agentIndex):
-        if depth is 0 or gameState.isLose() or gameState.isWin():
+    #Expectimax
+    def expectiMax(self, gameState, action, depth, agentIndex):
+        #Checks if the depth has been reached, or if the current state is winning/losing
+        if depth == 0 or gameState.isWin() or gameState.isLose():
             return (action, self.evaluationFunction(gameState))
-        if agentIndex is 0:
-            return self.maxvalue(gameState, action, depth, agentIndex)
+        if agentIndex == 0:
+            return self.maxValue(gameState, action, depth, agentIndex)
         else: 
-            return self.expvalue(gameState, action, depth, agentIndex)
+            return self.expValue(gameState, action, depth, agentIndex)
 
-    #Max value        
-    def maxvalue(self, gameState, action, depth, agentIndex):
-
-        bestAction = ('max', -(float('inf')))
+    #Maximum        
+    def maxValue(self, gameState, action, depth, agentIndex):
+        #Sets basis for to optimal (maximum) valie
+        optAction = ('max', -(float('inf')))
+        #Loops through valid actions
         for legalAction in gameState.getLegalActions(agentIndex):
             nextAgent = (agentIndex + 1) % gameState.getNumAgents()
             succAction = action
+            #Checks depth
             if depth != self.depth * gameState.getNumAgents():
                 succAction = action
             else:
                 succAction = legalAction
-                succValue = self.expectimax(gameState.generateSuccessor(agentIndex, legalAction),
-                succAction, depth -1, nextAgent)
-                bestAction = max(bestAction, succValue, key = lambda x:x[1])
-                return bestAction
+                #Finds successor value 
+                succValue = self.expectiMax(gameState.generateSuccessor(agentIndex, legalAction), succAction, depth -1, nextAgent)
+                #Finds the maximum action
+                optAction = max(optAction, succValue, key = lambda x:x[1])
+                return optAction
 
     #Exp value
-    def expvalue(self, gameState, action, depth, agentIndex):
+    def expValue(self, gameState, action, depth, agentIndex):
+        #Obtains valid actions
         legalActions = gameState.getLegalActions(agentIndex)
-        averageScore = 0
+        #Sets probability to 1/the length of actions
         probability = 1.0/len(legalActions)
+        #Sets the average score to 0
+        avScore = 0
+        #Loops through actions
         for legalAction in legalActions:
             nextAgent = (agentIndex + 1) % gameState.getNumAgents()
-            bestAction = self.expectimax(gameState.generateSuccessor(agentIndex, legalAction),
-            action, depth -1, nextAgent)
-            averageScore += bestAction[1] * probability
+            #Finds the optimal action (expectiMax)
+            optAction = self.expectiMax(gameState.generateSuccessor(agentIndex, legalAction), action, depth -1, nextAgent)
+            avScore += optAction[1] * probability
+        return (action, avScore)
 
-        return (action, averageScore)
 
-        
 def betterEvaluationFunction(currentGameState):
     """
     Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
