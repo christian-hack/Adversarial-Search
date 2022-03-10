@@ -236,7 +236,9 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        #util.raiseNotDefined()
+        max_Depth = self.depth * gameState.getNumAgents()
+        return self.expectimax(gameState, "expect", max_Depth, 0)[0]
 
 def betterEvaluationFunction(currentGameState):
     """
