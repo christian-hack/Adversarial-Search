@@ -158,8 +158,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
     #Minimax value
     def minimax(self, gameState, agentIndex, depth):
-        if depth is self.depth * gameState.getNumAgents() \ 
-            or gameState.isLose() or gameState.isWin():
+        if depth is self.depth * gameState.getNumAgents() or gameState.isLose() or gameState.isWin():
             return self.evaluationFunction(gameState)
         if agentIndex is 0:
             return self.maxval(gameState, agentIndex, depth)[1]
