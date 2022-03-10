@@ -238,7 +238,51 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         "*** YOUR CODE HERE ***"
         #util.raiseNotDefined()
         max_Depth = self.depth * gameState.getNumAgents()
-        return self.expectimax(gameState, "expect", max_Depth, 0)[0]
+        return self.expectiMax(gameState, "expect", max_Depth, 0)[0]
+
+    #Expectimax
+    def expectiMax(self, gameState, action, depth, agentIndex):
+        #Checks if the depth has been reached, or if the current state is winning/losing
+        if depth == 0 or gameState.isWin() or gameState.isLose():
+            return (action, self.evaluationFunction(gameState))
+        if agentIndex == 0:
+            return self.maxValue(gameState, action, depth, agentIndex)
+        else: 
+            return self.expValue(gameState, action, depth, agentIndex)
+
+    #Maximum        
+    def maxValue(self, gameState, action, depth, agentIndex):
+        #Sets basis for to optimal (maximum) valie
+        optAction = ('max', -(float('inf')))
+        #Loops through valid actions
+        for legalAction in gameState.getLegalActions(agentIndex):
+            nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+            succAction = None
+            #Checks depth
+            if depth != self.depth * gameState.getNumAgents():
+                succAction = action
+            else:
+                succAction = legalAction
+            #Finds successor value 
+            succValue = self.expectiMax(gameState.generateSuccessor(agentIndex, legalAction), succAction, depth -1, nextAgent)
+            #Finds the maximum action
+            optAction = max(optAction, succValue, key = lambda x:x[1])
+        return optAction
+    #Exp value
+    def expValue(self, gameState, action, depth, agentIndex):
+        #Obtains valid actions
+        legalActions = gameState.getLegalActions(agentIndex)
+        #Sets probability to 1/the length of actions
+        probability = 1.0/len(legalActions)
+        #Sets the average score to 0
+        avScore = 0
+        #Loops through actions
+        for legalAction in legalActions:
+            nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+            #Finds the optimal action (expectiMax)
+            optAction = self.expectiMax(gameState.generateSuccessor(agentIndex, legalAction), action, depth -1, nextAgent)
+            avScore += optAction[1] * probability
+        return (action, avScore)
 
 def betterEvaluationFunction(currentGameState):
     """
