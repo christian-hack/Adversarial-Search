@@ -309,7 +309,7 @@ def betterEvaluationFunction(currentGameState):
     for ghost in ghostPos:
         ghostDist = manhattanDistance(newPos, ghost)
         if(ghostDist < 2):
-            return -float("int")
+            return -float("inf")
     # store vars for assigning score per each factor
     remFood = currentGameState.getNumFood()
     remCaps = len(currentGameState.getCapsules())
